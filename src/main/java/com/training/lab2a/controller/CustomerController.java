@@ -2,6 +2,11 @@ package com.training.lab2a.controller;
 
 import com.training.lab2a.entity.Customer;
 import com.training.lab2a.services.CustomerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1")
+@Tag(name = "Customer API", description = "Endpoints for managing customers")
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -25,26 +31,50 @@ public class CustomerController {
     }
 
     @GetMapping("/customers")
-    public Object getCustomers(@RequestParam(required = false) Integer page,
-                               @RequestParam(required = false) Integer limit,
-                               @RequestParam(required = false) Long cursor) {
+    @Operation(summary = "List customers", description = "Retrieve customers with optional pagination or cursor-based paging")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Customers retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters")
+    })
+    public Object getCustomers(
+            @Parameter(description = "Page number to retrieve", example = "0") @RequestParam(required = false) Integer page,
+            @Parameter(description = "Number of customers per page", example = "10") @RequestParam(required = false) Integer limit,
+            @Parameter(description = "Cursor used for fetching the next page of results", example = "123") @RequestParam(required = false) Long cursor) {
         return customerService.getCustomers(page, limit, cursor);
     }
 
     @GetMapping("/customer/{custId}")
-    public Customer getCustomer(@PathVariable Long custId) {
+    @Operation(summary = "Get customer by ID", description = "Fetch a single customer by its unique identifier")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Customer found"),
+            @ApiResponse(responseCode = "404", description = "Customer not found")
+    })
+    public Customer getCustomer(
+            @Parameter(description = "Unique customer identifier", required = true, example = "1") @PathVariable Long custId) {
         return customerService.getCustomerById(custId);
     }
 
     @PostMapping("/customers")
     @ResponseStatus(HttpStatus.CREATED)
-    public Customer createCustomer(@Valid @RequestBody Customer customer) {
+    @Operation(summary = "Create customer", description = "Create a new customer from the request body")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Customer created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid customer payload")
+    })
+    public Customer createCustomer(
+            @Parameter(description = "Customer details to create", required = true) @Valid @RequestBody Customer customer) {
         return customerService.createCustomer(customer);
     }
 
     @DeleteMapping("/customers/{custId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCustomer(@PathVariable Long custId) {
+    @Operation(summary = "Delete customer", description = "Remove a customer by its unique identifier")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Customer deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Customer not found")
+    })
+    public void deleteCustomer(
+            @Parameter(description = "Unique customer identifier", required = true, example = "1") @PathVariable Long custId) {
         customerService.deleteCustomer(custId);
     }
 }
