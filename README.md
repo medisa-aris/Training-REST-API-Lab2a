@@ -27,6 +27,54 @@ The Java API is the main implementation for the current lab. It uses Spring Boot
 - Swagger JSDoc + Swagger UI
 - SQLite (in-memory)
 
+## How to Build
+
+### Build Java JAR (local)
+
+From project root:
+
+```bash
+./mvnw clean package -DskipTests
+```
+
+On Windows:
+
+```powershell
+.\mvnw.cmd clean package -DskipTests
+```
+
+Generated artifact:
+
+- target/lab2a-0.0.1-SNAPSHOT.jar
+
+### Build Docker image
+
+The Dockerfile uses eclipse-temurin:21-jdk-jammy as runtime base image.
+
+```bash
+docker build -t lab2a-java:latest .
+```
+
+### Run with Docker
+
+```bash
+docker run --rm -p 8080:8080 lab2a-java:latest
+```
+
+### Run with Docker Compose
+
+docker-compose.yml runs the jar directly from target/lab2a-0.0.1-SNAPSHOT.jar.
+
+```bash
+docker compose up -d
+```
+
+To stop:
+
+```bash
+docker compose down
+```
+
 ## Running the Java application
 
 From the project root, run:

@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  lab2a-java:
+    image: eclipse-temurin:21-jdk-jammy
+    container_name: lab2a-java
+    working_dir: /app
+    volumes:
+      - ./target/lab2a-0.0.1-SNAPSHOT.jar:/app/app.jar:ro
+    command: java -jar /app/app.jar
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
