@@ -19,8 +19,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/v1")
+@SecurityRequirement(name = "bearerAuth")   // Task 5 wires this to Swagger
 @Tag(name = "Customers", description = "Endpoints for managing customers")
 public class CustomerController {
 
@@ -36,6 +40,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "200", description = "Customers retrieved successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid request parameters")
     })
+    @PreAuthorize("hasAnyRole('AGENT','MANAGER','ADMIN')")
     public Object getCustomers(
             @Parameter(description = "Page number to retrieve", example = "0") @RequestParam(required = false) Integer page,
             @Parameter(description = "Number of customers per page", example = "10") @RequestParam(required = false) Integer limit,
@@ -49,6 +54,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "200", description = "Customer found"),
             @ApiResponse(responseCode = "404", description = "Customer not found")
     })
+    @PreAuthorize("hasAnyRole('AGENT','MANAGER','ADMIN')")
     public Customer getCustomer(
             @Parameter(description = "Unique customer identifier", required = true, example = "1") @PathVariable Long custId) {
         return customerService.getCustomerById(custId);
@@ -61,6 +67,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "201", description = "Customer created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid customer payload")
     })
+    @PreAuthorize("hasAnyRole('AGENT','ADMIN')")
     public Customer createCustomer(
             @Parameter(description = "Customer details to create", required = true) @Valid @RequestBody Customer customer) {
         return customerService.createCustomer(customer);
@@ -73,6 +80,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "204", description = "Customer deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Customer not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")            // 403 for anyone else
     public void deleteCustomer(
             @Parameter(description = "Unique customer identifier", required = true, example = "1") @PathVariable Long custId) {
         customerService.deleteCustomer(custId);
