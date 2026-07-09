@@ -80,7 +80,7 @@ public class BookingService {
     }
 
     private FlightEntity resolveFlight(BookingRequest.FlightRequest flightRequest) {
-        FlightEntity flight = flightRepository.findByFlightNumber(flightRequest.getFlightNumber());
+        FlightEntity flight = flightRepository.findByFlightNumber(flightRequest.getFlightNumber()).orElse(null);
         if (flight != null) {
             return flight;
         }

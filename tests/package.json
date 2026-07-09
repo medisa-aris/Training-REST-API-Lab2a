@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "test:newman": "newman run ./JavaApi.postman_collection.json -e ./Development.postman_environment.json --reporters cli",
+    "ci:newman": "powershell -ExecutionPolicy Bypass -File ./run-newman-ci.ps1"
+  },
   "dependencies": {
     "newman": "^6.2.2"
   }

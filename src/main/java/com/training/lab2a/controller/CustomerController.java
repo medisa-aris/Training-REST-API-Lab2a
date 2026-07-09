@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1")
-@Tag(name = "Customer API", description = "Endpoints for managing customers")
+@Tag(name = "Customers", description = "Endpoints for managing customers")
 public class CustomerController {
 
     private final CustomerService customerService;

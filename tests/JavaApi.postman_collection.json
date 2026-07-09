@@ -1,0 +1,175 @@
+{
+  "info": {
+    "name": "Java API Smoke Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create customer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Email is returned', function () { const json = pm.response.json(); pm.expect(json.email).to.eql('jane@example.com'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Doe\",\n  \"email\": \"jane@example.com\",\n  \"phone\": \"1234567890\",\n  \"address\": \"10 Main Street\",\n  \"city\": \"London\",\n  \"country\": \"UK\"\n}"
+        },
+        "url": {
+          "raw": "http://{{IP_SERVER}}:{{PORT}}/v1/customers",
+          "protocol": "http",
+          "host": ["{{IP_SERVER}}"],
+          "port": "{{PORT}}",
+          "path": ["v1", "customers"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List customers",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://{{IP_SERVER}}:{{PORT}}/v1/customers",
+          "protocol": "http",
+          "host": ["{{IP_SERVER}}"],
+          "port": "{{PORT}}",
+          "path": ["v1", "customers"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Search flights",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Flight result exists', function () { const json = pm.response.json(); pm.expect(json.length).to.be.greaterThan(0); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://{{IP_SERVER}}:{{PORT}}/v1/flights?origin=JFK&destination=LAX&departureDate=2026-07-20",
+          "protocol": "http",
+          "host": ["{{IP_SERVER}}"],
+          "port": "{{PORT}}",
+          "path": ["v1", "flights"],
+          "query": [
+            { "key": "origin", "value": "JFK" },
+            { "key": "destination", "value": "LAX" },
+            { "key": "departureDate", "value": "2026-07-20" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create booking",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"PENDING\",\n  \"flight\": {\n    \"flightNumber\": \"FL-101\",\n    \"origin\": {\n      \"code\": \"JFK\",\n      \"name\": \"John F. Kennedy International Airport\",\n      \"city\": \"New York\",\n      \"timezone\": \"America/New_York\"\n    },\n    \"destination\": {\n      \"code\": \"LAX\",\n      \"name\": \"Los Angeles International Airport\",\n      \"city\": \"Los Angeles\",\n      \"timezone\": \"America/Los_Angeles\"\n    },\n    \"departure\": \"2026-07-20T10:30:00\",\n    \"arrival\": \"2026-07-20T13:45:00\",\n    \"status\": \"SCHEDULED\",\n    \"seatsAvailable\": 12,\n    \"price\": 320.5\n  },\n  \"passengers\": [{\n    \"name\": \"Jane Doe\",\n    \"seat\": \"12A\",\n    \"type\": \"ADULT\"\n  }],\n  \"payment\": {\n    \"amount\": 320.5,\n    \"currency\": \"USD\",\n    \"status\": \"PENDING\"\n  }\n}"
+        },
+        "url": {
+          "raw": "http://{{IP_SERVER}}:{{PORT}}/v1/bookings",
+          "protocol": "http",
+          "host": ["{{IP_SERVER}}"],
+          "port": "{{PORT}}",
+          "path": ["v1", "bookings"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get booking",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://{{IP_SERVER}}:{{PORT}}/v1/bookings/BK-1",
+          "protocol": "http",
+          "host": ["{{IP_SERVER}}"],
+          "port": "{{PORT}}",
+          "path": ["v1", "bookings", "BK-1"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cancel booking",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://{{IP_SERVER}}:{{PORT}}/v1/bookings/1/cancellation",
+          "protocol": "http",
+          "host": ["{{IP_SERVER}}"],
+          "port": "{{PORT}}",
+          "path": ["v1", "bookings", "1", "cancellation"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

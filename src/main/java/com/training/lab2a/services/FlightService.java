@@ -24,9 +24,14 @@ public class FlightService {
     }
 
     public FlightEntity getFlightById(String flightId) {
-        Long id = Long.parseLong(flightId.replace("FL-", ""));
-        return flightRepository.findById(id)
+        if (flightId != null && flightId.startsWith("FL-")) {
+            return flightRepository.findByFlightNumber(flightId)
                 .orElseThrow(() -> new ResourceNotFoundException("Flight not found with id: " + flightId));
+        }
+
+        Long id = Long.parseLong(flightId);
+        return flightRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Flight not found with id: " + flightId));
     }
 
     public FlightEntity saveFlight(FlightEntity flight) {
