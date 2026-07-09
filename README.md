@@ -1,24 +1,35 @@
 # lab2a
 
-A simple Spring Boot REST API for managing customers using Spring Data JPA and an in-memory H2 database.
+This workspace contains two API implementations for the same training project:
+
+- a Java Spring Boot service with customer, flight, and booking endpoints
+- a Node.js/Express service for customer management with Swagger docs
 
 ## Overview
 
-This application exposes REST endpoints for customer CRUD operations and supports both page-based and cursor-based pagination for retrieving customers.
+The Java API is the main implementation for the current lab. It uses Spring Boot, Spring Data JPA, validation, and an in-memory H2 database. The Node service is a lightweight alternative implementation for customer CRUD operations and includes Swagger documentation.
 
 ## Technologies
 
+### Java API
 - Java 21
-- Spring Boot 4.1.0
+- Spring Boot 4.0.7
 - Spring Web MVC
 - Spring Data JPA
 - Spring Validation
 - H2 Database (in-memory)
+- Springdoc OpenAPI / Swagger UI
 - Maven
 
-## Running the application
+### Node API
+- Node.js
+- Express
+- Swagger JSDoc + Swagger UI
+- SQLite (in-memory)
 
-Use Maven to run the application from the project root:
+## Running the Java application
+
+From the project root, run:
 
 ```bash
 ./mvnw spring-boot:run
@@ -30,77 +41,80 @@ On Windows:
 .\mvnw.cmd spring-boot:run
 ```
 
-The application starts on `http://localhost:8080` by default.
+The Java API starts on http://localhost:8080 by default.
 
-## API Endpoints
+Swagger UI is available at:
+- http://localhost:8080/swagger-ui/index.html
+- OpenAPI JSON: http://localhost:8080/v3/api-docs
 
-Base path: `/v1`
+## Java API endpoints
 
-### Get customers
+Base path: /v1
 
-- `GET /v1/customers`
-- Supports optional pagination parameters:
-  - `page` (zero-based page number)
-  - `limit` (page size)
-- Supports cursor-based pagination with:
-  - `cursor` (customer ID offset)
-
-Examples:
-
-```bash
-curl "http://localhost:8080/v1/customers?page=0&limit=20"
-curl "http://localhost:8080/v1/customers?cursor=5&limit=20"
-```
-
-### Get a customer by ID
-
-- `GET /v1/customer/{custId}`
+### Customers
+- GET /v1/customers
+- GET /v1/customer/{custId}
+- POST /v1/customers
+- DELETE /v1/customers/{custId}
 
 Example:
 
 ```bash
+curl "http://localhost:8080/v1/customers?page=0&limit=10"
 curl http://localhost:8080/v1/customer/1
 ```
 
-### Create a new customer
+### Flights
+- GET /v1/flights?origin=JFK&destination=LAX&departureDate=2026-07-20
+- GET /v1/flights/{flightId}
 
-- `POST /v1/customers`
-- Request body should contain customer JSON.
-- Returns `201 Created`.
+### Bookings
+- POST /v1/bookings
+- GET /v1/bookings/{bookingId}
+- PATCH /v1/bookings/{bookingId}
+- POST /v1/bookings/{id}/cancellation
 
-Example body:
+## Running the Node application
 
-```json
-{
-  "firstName": "Jane",
-  "lastName": "Doe",
-  "email": "jane.doe@example.com",
-  "phone": "+1234567890",
-  "address": "123 Main St",
-  "city": "Springfield",
-  "country": "USA"
-}
-```
-
-### Delete a customer
-
-- `DELETE /v1/customers/{custId}`
-- Returns `204 No Content` if the customer is deleted.
-
-Example:
+From the Node folder:
 
 ```bash
-curl -X DELETE http://localhost:8080/v1/customers/1
+cd node
+npm install
+npm start
 ```
+
+The Node API also runs on http://localhost:8080 by default.
+
+Swagger documentation is available at:
+- http://localhost:8080/api-docs
+
+### Node customer endpoints
+- GET /v1/customers
+- GET /v1/customer/:custId
+- POST /v1/customers
+- DELETE /v1/customers/:custId
 
 ## Database
 
-The application uses an in-memory H2 database configured in `src/main/resources/application.properties`.
+### Java service
+The Java API uses an in-memory H2 database configured in src/main/resources/application.properties.
 
-- JDBC URL: `jdbc:h2:mem:lab2a;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`
-- H2 console is enabled.
+- JDBC URL: jdbc:h2:mem:lab2a;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+- Schema is recreated on startup with create-drop
+
+### Node service
+The Node service uses an in-memory SQLite database initialized at startup.
+
+## Testing
+
+Run the Java test suite with:
+
+```bash
+./mvnw test
+```
 
 ## Notes
 
-- Validation is applied to customer fields.
-- The application drops and recreates the schema on each startup (`spring.jpa.hibernate.ddl-auto=create-drop`).
+- Customer payloads are validated in both implementations.
+- The Java API includes seeded sample flight data for search and booking flows.

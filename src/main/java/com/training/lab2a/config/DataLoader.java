@@ -1,17 +1,23 @@
 package com.training.lab2a.config;
 
 import com.training.lab2a.entity.Customer;
+import com.training.lab2a.entity.FlightEntity;
 import com.training.lab2a.repository.CustomerRepository;
+import com.training.lab2a.repository.FlightRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 
 @Component
 public class DataLoader implements CommandLineRunner {
 
     private final CustomerRepository customerRepository;
+    private final FlightRepository flightRepository;
 
-    public DataLoader(CustomerRepository customerRepository) {
+    public DataLoader(CustomerRepository customerRepository, FlightRepository flightRepository) {
         this.customerRepository = customerRepository;
+        this.flightRepository = flightRepository;
     }
 
     @Override
@@ -28,6 +34,26 @@ public class DataLoader implements CommandLineRunner {
                     new Customer(null, "Hannah", "Moore", "hannah.moore@example.com", "8901234567", "80 Birch Way", "Glasgow", "UK"),
                     new Customer(null, "Ian", "Taylor", "ian.taylor@example.com", "9012345678", "90 Willow Close", "Leeds", "UK"),
                     new Customer(null, "Julia", "Anderson", "julia.anderson@example.com", "0123456789", "100 Ash Grove", "Sheffield", "UK")
+            ));
+        }
+
+        if (flightRepository.count() == 0) {
+            flightRepository.save(new FlightEntity(
+                    null,
+                    "FL-101",
+                    "JFK",
+                    "John F. Kennedy International Airport",
+                    "New York",
+                    "America/New_York",
+                    "LAX",
+                    "Los Angeles International Airport",
+                    "Los Angeles",
+                    "America/Los_Angeles",
+                    LocalDateTime.parse("2026-07-20T10:30:00"),
+                    LocalDateTime.parse("2026-07-20T13:45:00"),
+                    "SCHEDULED",
+                    12,
+                    320.5
             ));
         }
     }

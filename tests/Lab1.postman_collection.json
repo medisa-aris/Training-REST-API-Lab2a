@@ -1,0 +1,134 @@
+{
+  "info": {
+    "_postman_id": "bc2c2f9f-866c-4888-8640-a566f29affa8",
+    "name": "Lab1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36549854"
+  },
+  "item": [
+    {
+      "name": "1. Query to Github",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://{{IP_SERVER}}:{{PORT}}",
+          "protocol": "http",
+          "host": [
+            "{{IP_SERVER}}"
+          ],
+          "port": "{{PORT}}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Exercise 1: Inspect Public APIs ",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Status Code\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "// Response Time\r",
+              "pm.test(\"Response time is less than 100 ms\", function () {\r",
+              "    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+              "});\r",
+              "\r",
+              "// Parse JSON\r",
+              "const jsonData = pm.response.json();\r",
+              "\r",
+              "// Body Assertions\r",
+              "pm.test(\"Login is microsoft\", function () {\r",
+              "    pm.expect(jsonData.login).to.eql(\"microsoft\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"ID exists\", function () {\r",
+              "    pm.expect(jsonData.id).to.be.a(\"number\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"User type is Organization\", function () {\r",
+              "    pm.expect(jsonData.type).to.eql(\"Organization\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"GitHub profile URL exists\", function () {\r",
+              "    pm.expect(jsonData.html_url).to.eql(\"https://github.com/microsoft\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Public repos is a number\", function () {\r",
+              "    pm.expect(jsonData.public_repos).to.be.a(\"number\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Followers is a number\", function () {\r",
+              "    pm.expect(jsonData.followers).to.be.a(\"number\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Avatar URL is not empty\", function () {\r",
+              "    pm.expect(jsonData.avatar_url).to.not.be.empty;\r",
+              "});\r",
+              "\r",
+              "// Header Assertions\r",
+              "pm.test(\"Content-Type is application/json\", function () {\r",
+              "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+              "      .to.include(\"application/json\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Server header exists\", function () {\r",
+              "    pm.expect(pm.response.headers.has(\"Server\")).to.be.true;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Date header exists\", function () {\r",
+              "    pm.expect(pm.response.headers.has(\"Date\")).to.be.true;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"X-GitHub-Request-Id exists\", function () {\r",
+              "    pm.expect(pm.response.headers.has(\"X-GitHub-Request-Id\")).to.be.true;\r",
+              "});\r",
+              "\r",
+              "// JSON Response\r",
+              "pm.test(\"Response is JSON object\", function () {\r",
+              "    pm.expect(jsonData).to.be.an(\"object\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.github.com/users/microsoft",
+          "protocol": "https",
+          "host": [
+            "api",
+            "github",
+            "com"
+          ],
+          "path": [
+            "users",
+            "microsoft"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

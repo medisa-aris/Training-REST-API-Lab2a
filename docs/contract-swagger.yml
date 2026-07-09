@@ -1,0 +1,438 @@
+openapi: 3.0.3
+
+info:
+  title: ACME Travel API
+  version: 1.0.0
+  description: |
+    ACME Travel REST API for searching flights and managing bookings.
+
+servers:
+  - url: https://api.acme.com/v1
+    description: Production
+
+  - url: https://staging-api.acme.com/v1
+    description: Staging
+
+  - url: http://localhost:8080/v1
+    description: Sandbox / Local Development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Flights
+  - name: Bookings
+
+paths:
+
+  /flights:
+    get:
+      tags:
+        - Flights
+      summary: Search flights
+      operationId: searchFlights
+
+      parameters:
+        - name: origin
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+
+        - name: destination
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+
+        - name: departureDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+
+        - name: size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+
+      responses:
+        '200':
+          description: Flights found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Flight'
+
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /flights/{flightId}:
+    get:
+      tags:
+        - Flights
+      summary: Get flight details
+
+      parameters:
+        - name: flightId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^FL-[0-9]+$'
+
+      responses:
+        '200':
+          description: Flight found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flight'
+
+        '404':
+          description: Flight not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /bookings:
+    post:
+      tags:
+        - Bookings
+      summary: Create booking
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+
+      responses:
+        '201':
+          description: Booking created
+
+          headers:
+            Location:
+              description: URI of created booking
+              schema:
+                type: string
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+
+  /bookings/{bookingId}:
+    get:
+      tags:
+        - Bookings
+      summary: Get booking
+
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Booking found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+
+        '404':
+          description: Booking not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+    patch:
+      tags:
+        - Bookings
+      summary: Update booking
+
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              type: object
+
+      responses:
+        '200':
+          description: Booking updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+
+        '404':
+          description: Booking not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /bookings/{id}/cancellation:
+    post:
+      tags:
+        - Bookings
+      summary: Cancel booking
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Booking cancelled
+
+        '404':
+          description: Booking not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    Airport:
+      type: object
+      required:
+        - code
+        - name
+        - city
+        - timezone
+
+      properties:
+        code:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          example: CGK
+
+        name:
+          type: string
+          example: Soekarno Hatta International Airport
+
+        city:
+          type: string
+          example: Jakarta
+
+        timezone:
+          type: string
+          example: Asia/Jakarta
+
+    Flight:
+      type: object
+
+      required:
+        - flightNumber
+        - origin
+        - destination
+        - departure
+        - arrival
+        - status
+        - seatsAvailable
+        - price
+
+      properties:
+
+        flightNumber:
+          type: string
+          example: GA101
+
+        origin:
+          $ref: '#/components/schemas/Airport'
+
+        destination:
+          $ref: '#/components/schemas/Airport'
+
+        departure:
+          type: string
+          format: date-time
+
+        arrival:
+          type: string
+          format: date-time
+
+        status:
+          type: string
+          enum:
+            - SCHEDULED
+            - DELAYED
+            - BOARDING
+            - DEPARTED
+            - ARRIVED
+            - CANCELLED
+
+        seatsAvailable:
+          type: integer
+          minimum: 0
+
+        price:
+          type: number
+          format: double
+
+    Passenger:
+      type: object
+
+      required:
+        - name
+        - seat
+        - type
+
+      properties:
+        name:
+          type: string
+
+        seat:
+          type: string
+          example: 12A
+
+        type:
+          type: string
+          enum:
+            - ADULT
+            - CHILD
+            - INFANT
+
+    Payment:
+      type: object
+
+      required:
+        - amount
+        - currency
+        - status
+
+      properties:
+        amount:
+          type: number
+          format: double
+
+        currency:
+          type: string
+          example: USD
+
+        status:
+          type: string
+          enum:
+            - PENDING
+            - PAID
+            - FAILED
+            - REFUNDED
+
+    Booking:
+      type: object
+
+      required:
+        - status
+        - flight
+        - passengers
+        - payment
+
+      properties:
+
+        id:
+          type: string
+          readOnly: true
+
+        status:
+          type: string
+          enum:
+            - PENDING
+            - CONFIRMED
+            - CHECKED_IN
+            - BOARDED
+            - CANCELLED
+
+        flight:
+          $ref: '#/components/schemas/Flight'
+
+        passengers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Passenger'
+
+        payment:
+          $ref: '#/components/schemas/Payment'
+
+    ProblemDetail:
+      type: object
+
+      properties:
+        type:
+          type: string
+
+        title:
+          type: string
+
+        status:
+          type: integer
+
+        detail:
+          type: string
+
+        instance:
+          type: string
+
+        errors:
+          type: array
+          items:
+            type: string
